@@ -1,0 +1,63 @@
+FUNCTION_BLOCK
+
+VAR_INPUT
+odlegloscXDoDziury : REAL;
+odlegloscYDoDziury : REAL;
+odlegloscOdLewegoBoku : REAL;
+END_VAR
+
+VAR_OUTPUT
+skretSamochodu : REAL;
+END_VAR
+
+FUZZIFY odlegloscXDoDziury
+TERM lewo := (-300, 1) (-10, 1) (0, 0);
+TERM srodek :=  (-10, 0) (0, 1) (10, 0);
+TERM prawo := (0, 0) (10, 1) (300, 1);
+END_FUZZIFY
+
+FUZZIFY odlegloscYDoDziury
+TERM zaSamochodem := (-200,1) (-10, 1) (0, 0);
+TERM naRowni := (-10, 0) (0, 1) (30, 0);
+TERM przedSamochodem := (25, 0) (30,1) (90, 0.5);
+TERM dalekoprzedSamochodem := (80, 0) (90, 1) (600, 1);
+END_FUZZIFY
+
+FUZZIFY odlegloscOdLewegoBoku
+TERM maloMiejsca := (0,1) (30, 1) (45, 0);
+TERM umiarkowanie := (40, 0) (45, 1) (140, 1) (160, 0);
+TERM duzoMiejsca := (150, 0) (160, 1) (300, 1);
+END_FUZZIFY
+
+DEFUZZIFY skretSamochodu
+TERM ostroWLewo := (0, 1) (25, 1) (35, 0.5) (50, 0);
+TERM lagodnieWLewo := (25, 0.5) (35, 1) (50, 0);
+TERM srodek := (45,0) (50, 1) (55, 0);
+TERM lagodnieWPrawo := (50, 0) (65, 1) (75, 0.5);
+TERM ostroWPrawo := (50, 0) (65, 0.5) (75, 1) (100, 1);
+METHOD : COG;
+DEFAULT := 50;
+END_DEFUZZIFY
+
+RULEBLOCK first
+AND: MIN;
+ACT: MIN;
+
+RULE 0: IF odlegloscXDoDziury IS lewo AND odlegloscYDoDziury IS przedSamochodem THEN skretSamochodu IS lagodnieWPrawo;
+RULE 1: IF odlegloscXDoDziury IS prawo AND odlegloscYDoDziury IS przedSamochodem THEN skretSamochodu IS lagodnieWLewo;
+
+RULE 2: IF odlegloscXDoDziury IS srodek AND odlegloscOdLewegoBoku IS maloMiejsca AND odlegloscYDoDziury IS dalekoprzedSamochodem THEN skretSamochodu IS lagodnieWPrawo;
+RULE 3: IF odlegloscXDoDziury IS srodek AND odlegloscOdLewegoBoku IS umiarkowanie AND odlegloscYDoDziury IS dalekoprzedSamochodem THEN skretSamochodu IS lagodnieWPrawo;
+RULE 4: IF odlegloscXDoDziury IS srodek AND odlegloscOdLewegoBoku IS duzoMiejsca AND odlegloscYDoDziury IS dalekoprzedSamochodem THEN skretSamochodu IS lagodnieWLewo;
+
+RULE 5: IF odlegloscXDoDziury IS srodek AND odlegloscOdLewegoBoku IS maloMiejsca AND odlegloscYDoDziury IS przedSamochodem THEN skretSamochodu IS ostroWPrawo;
+RULE 6: IF odlegloscXDoDziury IS srodek AND odlegloscOdLewegoBoku IS umiarkowanie AND odlegloscYDoDziury IS przedSamochodem THEN skretSamochodu IS ostroWPrawo;
+RULE 7: IF odlegloscXDoDziury IS srodek AND odlegloscOdLewegoBoku IS duzoMiejsca AND odlegloscYDoDziury IS przedSamochodem THEN skretSamochodu IS ostroWLewo;
+
+RULE 8: IF odlegloscOdLewegoBoku IS maloMiejsca AND odlegloscYDoDziury IS zaSamochodem  THEN skretSamochodu IS lagodnieWPrawo;
+RULE 9: IF odlegloscOdLewegoBoku IS umiarkowanie AND odlegloscYDoDziury IS zaSamochodem  THEN skretSamochodu IS lagodnieWPrawo;
+RULE 10: IF odlegloscOdLewegoBoku IS duzoMiejsca AND odlegloscYDoDziury IS zaSamochodem  THEN skretSamochodu IS lagodnieWLewo;
+
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK
